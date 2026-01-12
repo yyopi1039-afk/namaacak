@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Ultimate Random Name Generator PRO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <style>
     :root {
       --primary:#6c63ff;--secondary:#00d4a6;--danger:#ff4d4d;
@@ -37,6 +36,7 @@
   </style>
 </head>
 <body>
+
 <div class="container">
   <h1>🔥 Ultimate Generator PRO</h1>
 
@@ -62,17 +62,41 @@
 
   <button class="generate" onclick="generate()">Generate</button>
   <div class="stats" id="stats"></div>
-
   <div class="history" id="history"></div>
 </div>
+
 <div class="toast" id="toast">OK</div>
 
 <script>
 const data={
- local:{f:['Adi','Budi','Dimas','Eko','Fajar','Indra','Rizki','Bagus'],l:['Saputra','Wijaya','Santoso','Pratama']},
- batak:{f:['Togar','Saut','Hotman','Binsar','Maruli'],l:['Siregar','Simanjuntak','Nasution','Nainggolan','Sinaga']},
- karo:{f:['Jefri','Bima','Ronal'],l:['Ginting','Tarigan','Sembiring','Karo-karo','Perangin-angin']},
- intl:{f:['Alex','Daniel','Kevin','Michael','Ryan'],l:['Smith','Brown','Taylor','Wilson']}
+  local:{
+    f:[
+      'Adi','Budi','Dimas','Eko','Fajar','Indra','Rizki','Bagus',
+      'Ayu','Siti','Putri','Dewi','Rina','Nabila','Intan','Lestari'
+    ],
+    l:['Saputra','Wijaya','Santoso','Pratama']
+  },
+  batak:{
+    f:[
+      'Togar','Saut','Hotman','Binsar','Maruli',
+      'Lina','Risma','Hotma','Tiur','Duma'
+    ],
+    l:['Siregar','Simanjuntak','Nasution','Nainggolan','Sinaga']
+  },
+  karo:{
+    f:[
+      'Jefri','Bima','Ronal',
+      'Mey','Brina','Erlina','Citra'
+    ],
+    l:['Ginting','Tarigan','Sembiring','Karo-karo','Perangin-angin']
+  },
+  intl:{
+    f:[
+      'Alex','Daniel','Kevin','Michael','Ryan',
+      'Emily','Sophia','Olivia','Ava','Luna'
+    ],
+    l:['Smith','Brown','Taylor','Wilson']
+  }
 };
 
 let used=JSON.parse(localStorage.getItem('used'))||[];
@@ -81,41 +105,89 @@ let theme=localStorage.getItem('theme')||'dark';
 if(theme==='light')document.body.classList.add('light');
 
 function r(a){return a[Math.floor(Math.random()*a.length)]}
-function passGen(){const c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';let p='';for(let i=0;i<16;i++)p+=c[Math.floor(Math.random()*c.length)];return p}
-function strength(p){let s=0;if(p.length>=8)s++;if(/[A-Z]/.test(p))s++;if(/[0-9]/.test(p))s++;if(/[^A-Za-z0-9]/.test(p))s++;return s}
+function passGen(){
+  const c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+  let p='';
+  for(let i=0;i<16;i++)p+=c[Math.floor(Math.random()*c.length)];
+  return p
+}
+function strength(p){
+  let s=0;
+  if(p.length>=8)s++;
+  if(/[A-Z]/.test(p))s++;
+  if(/[0-9]/.test(p))s++;
+  if(/[^A-Za-z0-9]/.test(p))s++;
+  return s
+}
 
 function generate(){
- let mode=document.getElementById('mode').value;
- let pool=mode==='all'?[data.local,data.batak,data.karo,data.intl]:[data[mode]];
- let name,tries=0;
- do{
-  let set=r(pool);
-  name=r(set.f)+' '+r(set.l);
-  tries++;
- }while(used.includes(name)&&tries<60);
- if(used.includes(name))name=r(data.intl.f)+' '+r(data.intl.l);
- used.push(name);localStorage.setItem('used',JSON.stringify(used));
- let user=name.toLowerCase().replace(/\s+/g,'_')+Math.floor(Math.random()*1000);
- let pass=passGen();
- document.getElementById('name').innerText=name;
- document.getElementById('user').innerText=user;
- document.getElementById('pass').innerText=pass;
- let s=strength(pass);let b=document.getElementById('bar');b.style.width=(s*25)+'%';b.style.background=s<2?'red':s<4?'orange':'lime';
- hist.unshift({name,user,pass});if(hist.length>10)hist.pop();localStorage.setItem('hist',JSON.stringify(hist));
- render();
+  let mode=document.getElementById('mode').value;
+  let pool=mode==='all'?[data.local,data.batak,data.karo,data.intl]:[data[mode]];
+  let name,tries=0;
+  do{
+    let set=r(pool);
+    name=r(set.f)+' '+r(set.l);
+    tries++;
+  }while(used.includes(name)&&tries<60);
+
+  used.push(name);
+  localStorage.setItem('used',JSON.stringify(used));
+
+  let user=name.toLowerCase().replace(/\s+/g,'_')+Math.floor(Math.random()*1000);
+  let pass=passGen();
+
+  document.getElementById('name').innerText=name;
+  document.getElementById('user').innerText=user;
+  document.getElementById('pass').innerText=pass;
+
+  let s=strength(pass);
+  let b=document.getElementById('bar');
+  b.style.width=(s*25)+'%';
+  b.style.background=s<2?'red':s<4?'orange':'lime';
+
+  hist.unshift({name,user,pass});
+  if(hist.length>10)hist.pop();
+  localStorage.setItem('hist',JSON.stringify(hist));
+  render();
 }
 
 function render(){
- document.getElementById('history').innerHTML=hist.map(h=>`<div class='history-item'><b>${h.name}</b><br>${h.user}<br>${h.pass}</div>`).join('');
- document.getElementById('stats').innerText=`Nama unik tersimpan: ${used.length}`;
+  document.getElementById('history').innerHTML=
+    hist.map(h=>`<div class='history-item'><b>${h.name}</b><br>${h.user}<br>${h.pass}</div>`).join('');
+  document.getElementById('stats').innerText=`Nama unik tersimpan: ${used.length}`;
 }
 
-function copy(id){navigator.clipboard.writeText(document.getElementById(id).innerText);toast('Copied')}
-function toast(t){let x=document.getElementById('toast');x.innerText=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2000)}
-function toggleTheme(){document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark')}
-function exportHistory(){let t='HISTORY\n\n';hist.forEach((h,i)=>t+=`${i+1}. ${h.name} | ${h.user} | ${h.pass}\n`);let b=new Blob([t]);let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='history.txt';a.click()}
-function resetUsed(){if(confirm('Reset semua nama unik?')){used=[];localStorage.removeItem('used');render();toast('Reset OK')}}
-
+function copy(id){
+  navigator.clipboard.writeText(document.getElementById(id).innerText);
+  toast('Copied');
+}
+function toast(t){
+  let x=document.getElementById('toast');
+  x.innerText=t;
+  x.classList.add('show');
+  setTimeout(()=>x.classList.remove('show'),2000);
+}
+function toggleTheme(){
+  document.body.classList.toggle('light');
+  localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');
+}
+function exportHistory(){
+  let t='HISTORY\n\n';
+  hist.forEach((h,i)=>t+=`${i+1}. ${h.name} | ${h.user} | ${h.pass}\n`);
+  let b=new Blob([t]);
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(b);
+  a.download='history.txt';
+  a.click();
+}
+function resetUsed(){
+  if(confirm('Reset semua nama unik?')){
+    used=[];
+    localStorage.removeItem('used');
+    render();
+    toast('Reset OK');
+  }
+}
 render();
 </script>
 </body>
