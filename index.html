@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Nama & Password Generator</title>
+  <style>
+    :root {
+      --primary: #6c63ff;
+      --secondary: #00c9a7;
+      --danger: #ff5c5c;
+      --bg: #0f1220;
+      --card: #1b1f3b;
+      --text: #ffffff;
+      --muted: #b5b8ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f1220, #1b1f3b);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.6rem;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-size: 1.1rem;
+      word-break: break-all;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .history {
+      margin-top: 20px;
+    }
+
+    .history h2 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .history-item {
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .history-text {
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .delete-btn {
+      background: var(--danger);
+      border: none;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .delete-btn:hover {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 Generator Nama & Password</h1>
+
+    <div class="box">
+      <div class="label">Nama Indonesia (Random)</div>
+      <div class="value" id="nameOutput">-</div>
+    </div>
+
+    <div class="box">
+      <div class="label">Password Kuat (Random)</div>
+      <div class="value" id="passwordOutput">-</div>
+    </div>
+
+    <button onclick="generate()">Generate</button>
+
+    <div class="history">
+      <h2>Riwayat (Max 10)</h2>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <script>
+    const firstNames = [
+      'Adi','Budi','Cahyo','Dimas','Eko','Fajar','Galang','Hadi','Indra','Joko',
+      'Rizki','Rama','Putra','Yoga','Bagus','Arif','Teguh','Wahyu','Yudha','Agus'
+    ];
+
+    const lastNames = [
+      'Saputra','Pratama','Wijaya','Santoso','Setiawan','Maulana','Ramadhan',
+      'Nugroho','Firmansyah','Hidayat','Kurniawan','Susanto','Permana'
+    ];
+
+    let historyData = [];
+
+    function randomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateName() {
+      return `${randomItem(firstNames)} ${randomItem(lastNames)}`;
+    }
+
+    function generatePassword(length = 16) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]<>?';
+      let pass = '';
+      for (let i = 0; i < length; i++) {
+        pass += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return pass;
+    }
+
+    function generate() {
+      const name = generateName();
+      const password = generatePassword();
+
+      document.getElementById('nameOutput').innerText = name;
+      document.getElementById('passwordOutput').innerText = password;
+
+      addHistory(name, password);
+    }
+
+    function addHistory(name, password) {
+      historyData.unshift({ name, password });
+      if (historyData.length > 10) {
+        historyData.pop();
+      }
+      renderHistory();
+    }
+
+    function deleteHistory(index) {
+      historyData.splice(index, 1);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+
+      historyData.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+
+        div.innerHTML = `
+          <div class="history-text">
+            <strong>${item.name}</strong><br />
+            <small>${item.password}</small>
+          </div>
+          <button class="delete-btn" onclick="deleteHistory(${index})">Hapus</button>
+        `;
+
+        list.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
